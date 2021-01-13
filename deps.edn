@@ -1,0 +1,5 @@
+{:deps {org.clojure/clojure {:mvn/version "1.10.0"}
+       creddit/creddit {:mvn/version "1.1.0"}
+        }
+
+ :paths ["src" "resources" "tests"]}
