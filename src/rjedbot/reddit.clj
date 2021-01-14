@@ -1,4 +1,4 @@
-(ns redbot.reddit
+(ns rjedbot.reddit
   "Namespace for dealing with Reddit via the creddit API."
   (:require [creddit.core :as creddit]
             [cprop.core :refer [load-config]]))

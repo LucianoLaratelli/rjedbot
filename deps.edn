@@ -1,5 +1,6 @@
 {:deps {org.clojure/clojure {:mvn/version "1.10.0"}
         creddit/creddit {:mvn/version "1.1.0"}
-        cprop/cprop {:mvn/version "0.1.17"}}
+        cprop/cprop {:mvn/version "0.1.17"}
+        instaparse/instaparse {:mvn/version "1.4.10"}}
 
  :paths ["src" "resources" "tests"]}
