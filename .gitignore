@@ -4,3 +4,4 @@
 tmp/
 .nrepl-port
 resources/config.edn
+.cpcache/*
