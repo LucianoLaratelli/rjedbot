@@ -1,5 +1,6 @@
 #+TITLE: rjedbot
 #+AUTHOR:Luciano Laratelli
 
-=rjedbot= is a bot for requesting reddit posts from discord servers, made
-possible thanks to the wonderful [[https://github.com/IGJoshua/discljord][discljord]] and [[https://github.com/ThatGuyHughesy/creddit][creddit]] libraries.
+=rjedbot= is a clojure bot for requesting reddit posts from discord servers, made
+possible thanks to the wonderful [[https://github.com/ThatGuyHughesy/creddit][creddit]] library and the discord interactions
+API.
