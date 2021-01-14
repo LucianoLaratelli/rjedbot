@@ -30,7 +30,7 @@
    (get-posts subreddit post-type time 1))
   ([subreddit post-type time amount-posts-requested]
    (cond
-     (> amount-posts-requested 100) (throw (Exception. "Can't ask for more than 100 posts at a time."))
+     (> amount-posts-requested 10) (throw (Exception. "Can't ask for more than 10 posts at a time."))
      (< amount-posts-requested 1) (throw (Exception. "Can't ask for less than 1 post."))
      (not (contains? creddit-times time)) (throw (Exception. "You asked for an invalid time. Must be any one of :hour, :day, :week, :month, :year, :all."))
      :else (let
