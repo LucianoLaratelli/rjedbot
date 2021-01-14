@@ -1,7 +1,8 @@
 {:deps {org.clojure/clojure {:mvn/version "1.10.0"}
         creddit/creddit {:mvn/version "1.1.0"}
         cprop/cprop {:mvn/version "0.1.17"}
-        instaparse/instaparse {:mvn/version "1.4.10"}
-        org.suskalo/discljord {:mvn/version "1.2.0"}}
+        ring/ring-jetty-adapter {:mvn/version "1.7.1"}
+        metosin/jsonista {:mvn/version "0.3.0"}
+        caesium/caesium {:mvn/version "0.14.0"}}
 
  :paths ["src" "resources" "tests"]}
