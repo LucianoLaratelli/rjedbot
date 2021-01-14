@@ -3,5 +3,6 @@
 *.log
 tmp/
 .nrepl-port
-resources/config.edn
+resources/reddit-config.edn
+resources/discord-pubkey.edn
 .cpcache/*
