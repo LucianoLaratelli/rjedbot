@@ -4,7 +4,7 @@
             [cprop.core :refer [load-config]]))
 
 (def credentials
-  (load-config :file "resources/config.edn"))
+  (load-config :resource "reddit-config.edn"))
 
 (def creddit-client (creddit/init credentials))
 
@@ -22,6 +22,10 @@
   "Get a post from a subreddit.
   A post-type must be any one of the keys in `creddit-funcs`. A `time` must be
   any one of the keys in `creddit-times`."
+  ([subreddit]
+   (get-posts subreddit :hot :all 1))
+  ([subreddit post-type]
+   (get-posts subreddit post-type :all 1))
   ([subreddit post-type time]
    (get-posts subreddit post-type time 1))
   ([subreddit post-type time amount-posts-requested]

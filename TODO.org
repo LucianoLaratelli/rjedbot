@@ -2,12 +2,22 @@
 
 * TODO Features
 ** TODO "Surprise me" command where members of a server can add a list of favorite subreddits and then a command picks a random post from each one
+** TODO change prefix
+*** TODO
 ** TODO need commands to:
-*** TODO add subreddit from list
+*** TODO add subreddit to list
+**** TODO <prefix> "add " <subreddit> " to favorites"
 *** TODO remove subreddit from list
+**** TODO <prefix> "remove " <subreddit> " from favorites"
 *** TODO show current list
-*** TODO actually request a post
-** TODO command parser
+**** TODO <prefix> "show favorites"
+*** TODO actually request a post:
+**** TODO <prefix> <subreddit>
+**** TODO <prefix> <subreddit> <type>
+**** TODO <prefix> <subreddit> <type> <time>
+**** TODO <prefix> <subreddit> <type> <time> <amount>
+**** TODO <prefix> <surprise>
+**** TODO <prefix> <surprise> <amount>
 * TODO Interfaces
 ** DONE reddit
 *** DONE want to wrap creddit commands
