@@ -1,5 +1,5 @@
-#+TITLE: redbot
+#+TITLE: rjedbot
 #+AUTHOR:Luciano Laratelli
 
-=redbot= is a bot for requesting reddit posts from discord servers, made
+=rjedbot= is a bot for requesting reddit posts from discord servers, made
 possible thanks to the wonderful [[https://github.com/IGJoshua/discljord][discljord]] and [[https://github.com/ThatGuyHughesy/creddit][creddit]] libraries.
