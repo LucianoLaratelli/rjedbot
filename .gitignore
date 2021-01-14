@@ -3,4 +3,4 @@
 *.log
 tmp/
 .nrepl-port
-
+resources/config.edn
