@@ -1,9 +1,9 @@
 #+TITLE: TODO
 
+* command responses need to be in embeds
+* TODO we have a max of 10 things per embed so gotta update the limit in get-posts
 * TODO Features
 ** TODO "Surprise me" command where members of a server can add a list of favorite subreddits and then a command picks a random post from each one
-** TODO change prefix
-*** TODO
 ** TODO need commands to:
 *** TODO add subreddit to list
 **** TODO <prefix> "add " <subreddit> " to favorites"
@@ -12,7 +12,7 @@
 *** TODO show current list
 **** TODO <prefix> "show favorites"
 *** TODO actually request a post:
-**** TODO <prefix> <subreddit>
+**** DONE <prefix> <subreddit>
 **** TODO <prefix> <subreddit> <type>
 **** TODO <prefix> <subreddit> <type> <time>
 **** TODO <prefix> <subreddit> <type> <time> <amount>
