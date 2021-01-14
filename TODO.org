@@ -1,0 +1,18 @@
+#+TITLE: TODO
+
+* TODO Features
+** TODO "Surprise me" command where members of a server can add a list of favorite subreddits and then a command picks a random post from each one
+** TODO need commands to:
+*** TODO add subreddit from list
+*** TODO remove subreddit from list
+*** TODO show current list
+*** TODO actually request a post
+* TODO Interfaces
+** DONE reddit
+*** DONE want to wrap creddit commands
+** TODO discord
+* DONE security
+** DONE figure out good way to have credentials in
+* TODO misc
+** DONE at least some pinned posts are marked as not being pinned by the API
+turns out the API just returns n+1 posts if one is pinned -- tricky!
