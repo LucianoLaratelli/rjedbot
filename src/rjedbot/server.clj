@@ -6,7 +6,7 @@
             [ring.adapter.jetty :as jetty]
             [rjedbot.commands :as commands]))
 
-(def pubkey
+(def discord-pubkey
   (cutil/unhexify (:key (load-config :resource "discord-pubkey.edn"))))
 
 (def server (atom nil))
@@ -19,7 +19,7 @@
         signature (cutil/unhexify (get (:headers thing) "x-signature-ed25519"))
         to-verify (str timestamp body-str)]
     (try
-      (sign/verify signature to-verify pubkey)
+      (sign/verify signature to-verify discord-pubkey)
       (case (get body "type")
         1 {:status 200
            :headers {"Content-Type" "application/json"}
