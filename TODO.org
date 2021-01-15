@@ -13,8 +13,8 @@
 **** TODO <prefix> "show favorites"
 *** TODO actually request a post:
 **** DONE <prefix> <subreddit>
-**** TODO <prefix> <subreddit> <type>
-**** TODO <prefix> <subreddit> <type> <time>
+**** DONE <prefix> <subreddit> <type>
+**** DONE <prefix> <subreddit> <type> <time>
 **** TODO <prefix> <subreddit> <type> <time> <amount>
 **** TODO <prefix> <surprise>
 **** TODO <prefix> <surprise> <amount>
@@ -27,3 +27,8 @@
 * TODO misc
 ** DONE at least some pinned posts are marked as not being pinned by the API
 turns out the API just returns n+1 posts if one is pinned -- tricky!
+* TODO server-owner configuration
+** TODO maximum number of requestable posts
+*** TODO read from an edn
+*** TODO write to an edn
+*** TODO interaction that does this
