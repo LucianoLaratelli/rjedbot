@@ -56,8 +56,11 @@
 
 (def post-max 6)
 
-(defn valid-post-count? [pcount]
-  (<= 1 pcount post-max))
+(defn valid-post-count?
+  [the-count]
+  (if (nil? the-count)
+    true
+    (<= 1 the-count post-max)))
 
 (defn command-handler
   [body]
@@ -68,9 +71,8 @@
         post-type (keyword (get-value options 1))
         post-time-scope (keyword (get-value options 2))
         post-count (get-value options 3)]
-    (pp/pprint body)
-    (println "hello")
-    (if (or (valid-post-count? count) (nil? post-count))
+
+    (if (valid-post-count? post-count)
       (case command-name
         "lofi" (make-string-response "p!play https://www.youtube.com/watch?v=5qap5aO4i9A")
         "post" (post-handler (reddit/get-posts subreddit))
