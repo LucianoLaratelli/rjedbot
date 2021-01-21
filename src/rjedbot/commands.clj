@@ -1,8 +1,11 @@
 (ns rjedbot.commands
-  (:require [jsonista.core :as j]
-            [rjedbot.reddit :as reddit]
+  (:require [clojure.edn :as edn]
+            [clojure.java.io :as io]
             [clojure.pprint :as pp]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [jsonista.core :as j]
+            [rjedbot.reddit :as reddit]
+            [rjedbot.util :as util]))
 
 (defn make-string-response
   [string]
@@ -18,14 +21,21 @@
   [url-list]
   {:status 200
    :headers {"Content-Type" "application/json"}
-   :body (j/write-value-as-string {:type 4
-                                   :data {:embeds
-                                          (into []
-                                                (map make-embed url-list))}})})
+   :body (j/write-value-as-string
+          {:type 4
+           :data {:embeds
+                  (into []
+                        (map make-embed url-list))}})})
 
 (defn get-value
   [m i]
   (get-in m [i "value"]))
+
+(defn contains-key?
+  [key m]
+  (if (get m key)
+    true
+    false))
 
 (defn post-handler
   "Handle post URLs according to their types."
@@ -49,18 +59,21 @@
                                   (contains? embed-extensions extension) {:embed post}
                                   :default {:raw post})))
                             posts)
-        skipped (count (filter #(:skip %) labelled-posts))
-        to-embed (filter #(:embed % labelled-posts))
-        to-raw (filter #(:raw % labelled-posts))]
-    (make-embed-from-urls (map #(:embed %) (filter #(:embed %) labelled-posts)))))
+        skipped (count (map :skip (filter #(contains-key? :skip %) labelled-posts)))
+        to-embed (map :embed (filter #(contains-key? :embed %) labelled-posts))
+        to-raw (map :raw (filter #(contains-key? :raw %) labelled-posts))
+        sendable (count to-embed)]
+    (if (> sendable 0)
+      (make-embed-from-urls to-embed)
+      (make-string-response "had to skip all of your posts; they aren't supported yet."))))
 
-(def post-max 6)
+(def max-posts (atom (:max-posts (read-string (slurp (io/resource "config.edn"))))))
 
 (defn valid-post-count?
   [the-count]
   (if (nil? the-count)
     true
-    (<= 1 the-count post-max)))
+    (<= 1 the-count @max-posts)))
 
 (defn command-handler
   [body]
@@ -72,11 +85,16 @@
         post-time-scope (keyword (get-value options 2))
         post-count (get-value options 3)]
 
+    (println (str "serving request for subreddit " subreddit " at " (new java.util.Date)))
     (if (valid-post-count? post-count)
       (case command-name
         "lofi" (make-string-response "p!play https://www.youtube.com/watch?v=5qap5aO4i9A")
         "post" (post-handler (reddit/get-posts subreddit))
         "post-from" (post-handler (reddit/get-posts subreddit post-type))
         "post-from-time" (post-handler (reddit/get-posts subreddit post-type post-time-scope))
-        "posts" (post-handler (reddit/get-posts subreddit post-type post-time-scope post-count)))
-      (make-string-response (conj "you asked for too many posts. max is " post-max)))))
+        "posts" (post-handler (reddit/get-posts subreddit post-type post-time-scope post-count))
+        "update-max" (do
+                       (swap! max-posts subreddit)
+                       (util/write-edn {:max-posts @max-posts} "config.edn")))
+
+      (make-string-response (conj "you asked for too many posts. max is " @max-posts)))))
