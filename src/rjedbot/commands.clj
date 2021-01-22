@@ -18,14 +18,16 @@
   {:image {:url url-string}})
 
 (defn make-embed-from-urls
-  [url-list]
+  [url-list later skipped]
   {:status 200
    :headers {"Content-Type" "application/json"}
    :body (j/write-value-as-string
           {:type 4
-           :data {:embeds
-                  (into []
-                        (map make-embed url-list))}})})
+           :data {:content (str "I was able to show you " (count url-list) " posts as embeds.\n"
+                                later " posts will be in the next message I send.\n"
+                                skipped " posts had to be skipped due to incompatible format.\n")
+                  :embeds (into []
+                                (map make-embed url-list))}})})
 
 (defn get-value
   [m i]
@@ -36,6 +38,14 @@
   (if (get m key)
     true
     false))
+
+(defn get-values-with-key
+  "
+  Get any values that match k from s, a seq of maps like:
+  ({:a 'foo'} {:b 'bar'} {:c 'baz'})
+  "
+  [s k]
+  (map k (filter #(contains-key? k %) s)))
 
 (defn post-handler
   "Handle post URLs according to their types."
@@ -59,13 +69,14 @@
                                   (contains? embed-extensions extension) {:embed post}
                                   :default {:raw post})))
                             posts)
-        skipped (count (map :skip (filter #(contains-key? :skip %) labelled-posts)))
-        to-embed (map :embed (filter #(contains-key? :embed %) labelled-posts))
-        to-raw (map :raw (filter #(contains-key? :raw %) labelled-posts))
-        sendable (count to-embed)]
+        skipped (count (get-values-with-key labelled-posts :skip))
+        embeddable (get-values-with-key labelled-posts :embed)
+        to-raw (get-values-with-key labelled-posts :raw)
+        sendable (count embeddable)]
+    (println (str "handling posts from subreddit at " (new java.util.Date)))
     (if (> sendable 0)
-      (make-embed-from-urls to-embed)
-      (make-string-response "had to skip all of your posts; they aren't supported yet."))))
+      (make-embed-from-urls embeddable (count to-raw) skipped)
+      (make-string-response "had to skip all of your posts; their formats aren't supported yet."))))
 
 (def max-posts (atom (:max-posts (read-string (slurp (io/resource "config.edn"))))))
 
