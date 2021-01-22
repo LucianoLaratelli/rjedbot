@@ -20,8 +20,9 @@ send a single surprise
 **** TODO /surprise <amount>
 request n surprises (up to server limit)
 * TODO Interfaces
-** DONE reddit
+** TODO reddit
 *** DONE want to wrap creddit commands
+*** TODO what happens when a subreddit doesn't exist?
 ** TODO discord
 * TODO misc
 ** DONE at least some pinned posts are marked as not being pinned by the API
