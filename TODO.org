@@ -2,20 +2,23 @@
 
 * TODO Features
 ** TODO "Surprise me" command where members of a server can add a list of favorite subreddits and then a command picks a random post from each one
+maybe only the server owner should be able to add subreddits to the favorites list....
 ** TODO need commands to:
 *** TODO add subreddit to list
-**** TODO <prefix> "add " <subreddit> " to favorites"
+**** TODO /surprise add: ${subreddit}
 *** TODO remove subreddit from list
-**** TODO <prefix> "remove " <subreddit> " from favorites"
+**** TODO /surprise remove: ${subreddit}
 *** TODO show current list
-**** TODO <prefix> "show favorites"
+**** TODO /surprise show
 *** TODO actually request a post:
 **** DONE <prefix> <subreddit>
 **** DONE <prefix> <subreddit> <type>
 **** DONE <prefix> <subreddit> <type> <time>
 **** DONE <prefix> <subreddit> <type> <time> <amount>
-**** TODO <prefix> <surprise>
-**** TODO <prefix> <surprise> <amount>
+**** TODO /surprise
+send a single surprise
+**** TODO /surprise <amount>
+request n surprises (up to server limit)
 * TODO Interfaces
 ** DONE reddit
 *** DONE want to wrap creddit commands
@@ -28,10 +31,26 @@ turns out the API just returns n+1 posts if one is pinned -- tricky!
 *** DONE read from an edn
 *** DONE write to an edn
 *** TODO interaction that does this
-* TODO refactor utils in commands.clj
-** TODO move get-value, contains-key?, and get-values-with-key to util.clj
-** TODO rename to be more accurate
-** TODO add doc strings
+*** TODO needs to check that we don't exceed global embed limit or reddit API limit
+though I guess if we exceed the embed limit, can't we just send another embed
+(or nine other embeds) in follow-up messages? looking at the docs it seems like
+there isn't a restriction on the number of follow-up messages that can be sent,
+so if someone requests, say, 100 posts, and all of them are embeds, then we send
+the original response and nine follow up messages containing other embeds
+(because embeds can only have ten things in them at a time.)
+* TODO edit the embed url content
+Eventually it's going to become too much of a pain to compute how many posts we
+were able to embed vs send raw etc. Once follow-up messages are ready, only say
+how many posts we had to skip!
+* DONE refactor utils in commands.clj
+** DONE move get-value, contains-key?, and get-values-with-key to util.clj
+*** DONE get-value
+- m is a vec of maps like =[{"name" "subreddit", "value" "cats"} {"name" "section", "value" "top"}]=
+*** DONE contains-key?
+- m is a map like ={:embed "http://url.com"}=
+*** DONE get-values-with-key
+** DONE rename to be more accurate
+** DONE add doc strings
 * TODO config file needs to be indexed by guild IDs
 * DONE command responses need to be in embeds
 * DONE we have a max of 10 things per embed so gotta update the limit in get-posts
