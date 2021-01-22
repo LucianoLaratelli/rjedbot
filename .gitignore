@@ -4,5 +4,5 @@
 tmp/
 .nrepl-port
 resources/reddit-config.edn
-resources/discord-pubkey.edn
+resources/discord-credentials.edn
 .cpcache/*
