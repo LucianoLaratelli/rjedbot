@@ -1,33 +1,15 @@
 (ns rjedbot.commands
-  (:require [clojure.edn :as edn]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.pprint :as pp]
             [clojure.string :as s]
             [jsonista.core :as j]
             [rjedbot.reddit :as reddit]
-            [rjedbot.util :as u]))
+            [rjedbot.responses :as responses]
+            [rjedbot.util :as u]
+            [clojure.edn :as edn]
+            [cprop.core :refer [load-config]]))
 
-(defn make-string-response
-  [string]
-  {:status 200
-   :headers {"Content-Type" "application/json"}
-   :body (j/write-value-as-string {:type 4 :data {:content string}})})
-
-(defn make-embed
-  [url-string]
-  {:image {:url url-string}})
-
-(defn make-embed-from-urls
-  [url-list later skipped]
-  {:status 200
-   :headers {"Content-Type" "application/json"}
-   :body (j/write-value-as-string
-          {:type 4
-           :data {:content (str "I was able to show you " (count url-list) " posts as embeds.\n"
-                                later " posts will be in the next message I send.\n"
-                                skipped " posts had to be skipped due to incompatible format.\n")
-                  :embeds (into []
-                                (map make-embed url-list))}})})
+(def max-posts (atom (:max-posts (read-string (slurp (io/resource "config.edn"))))))
 
 (defn post-handler
   "Handle post URLs according to their extensions."
@@ -44,7 +26,7 @@
   ;;     no extension, gifv, gif => raw link (sent after the embed)
   ;;     png, jpg, jpeg => joined together into a single embed
   ;;     mp4 => skipped
-  [posts]
+  [posts token]
   (let [embed-extensions #{"png" "jpg" "jpeg"}
         raw-msg-extensions #{"" "gifv" "gif"}
         skipped-extensions #{"mp4"}
@@ -58,16 +40,17 @@
                             posts)
         skipped (count (u/get-inner-values-matching-key labelled-posts :skip))
         embeddable (u/get-inner-values-matching-key labelled-posts :embed)
-        to-raw (u/get-inner-values-matching-key labelled-posts :raw)
-        sendable (count embeddable)
-        ;;TODO: sendable should be embeddable + to-raw once the followup messages are implemented
-        ]
-    (println (str "handling posts from subreddit at " (new java.util.Date)))
-    (if (> sendable 0)
-      (make-embed-from-urls embeddable (count to-raw) skipped)
-      (make-string-response "had to skip all of your posts; their formats aren't supported yet."))))
+        to-raw (u/get-inner-values-matching-key labelled-posts :raw)]
+    (when (> skipped 0) (responses/POST-string token (str "Skipped " skipped " of " (count posts) " requested posts due to invalid format.")))
+    (when (> (count embeddable) 0) (responses/POST-embed token embeddable))
+    (when (> (count to-raw) 0)
+      (for [r to-raw]
+        (responses/POST-single-URL token r)))
 
-(def max-posts (atom (:max-posts (read-string (slurp (io/resource "config.edn"))))))
+    ;; {:status 200
+    ;;  :headers {"Content-Type" "application/json"}
+    ;;  :body (j/write-value-as-string {:type 4} :data {:content ""})}
+    ))
 
 (defn valid-post-count?
   "Do we have a valid amount of posts?"
@@ -84,6 +67,7 @@
   (let [data (get body "data")
         options (get data "options")
         command-name (get data "name")
+        token (get body "token")
         subreddit (u/get-value-from-ith-map options 0 "value")
         post-type (keyword (u/get-value-from-ith-map options 1 "value"))
         post-time-scope (keyword (u/get-value-from-ith-map options 2 "value"))
@@ -91,18 +75,20 @@
 
     (println (str "serving request for subreddit " subreddit " at " (new java.util.Date)))
     (if (valid-post-count? post-count)
-      (case command-name
-        "lofi" (make-string-response "p!play https://www.youtube.com/watch?v=5qap5aO4i9A")
-        "post" (post-handler (reddit/get-posts subreddit))
-        "post-from" (post-handler (reddit/get-posts subreddit post-type))
-        "post-from-time" (post-handler (reddit/get-posts subreddit post-type post-time-scope))
-        "posts" (post-handler (reddit/get-posts subreddit post-type post-time-scope post-count))
-        "update-max" (do
+      (try (case command-name
+             "lofi" (responses/POST-string token "p!play https://www.youtube.com/watch?v=5qap5aO4i9A")
+             "post" (post-handler (reddit/get-posts subreddit) token)
+             "post-from" (post-handler (reddit/get-posts subreddit post-type) token)
+             "post-from-time" (post-handler (reddit/get-posts subreddit post-type post-time-scope) token)
+             "posts" (post-handler (reddit/get-posts subreddit post-type post-time-scope post-count) token)
+             "update-max" (do
                        ;;"subreddit" used loosely here -- for most commands, the
                        ;;value of the 0th map will be a subreddit. Here
                        ;;subreddit is the new number of maximum posts a server
                        ;;owner wants to allow at a time.
-                       (swap! max-posts subreddit)
-                       (u/write-edn {:max-posts @max-posts} "config.edn")))
+                            (swap! max-posts subreddit)
+                            (u/write-edn {:max-posts @max-posts} "config.edn")))
+           (catch Exception e
+             (responses/POST-string token (str "You asked for subreddit " subreddit ", which doesn't seem to exist."))))
 
-      (make-string-response (conj "you asked for too many posts. max is " @max-posts)))))
+      (responses/POST-string token (str "you asked for too many posts. max is " @max-posts)))))
