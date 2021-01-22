@@ -1,4 +1,5 @@
 (ns rjedbot.server
+  (:gen-class)
   (:require [caesium.crypto.sign :as sign]
             [caesium.util :as cutil]
             [cprop.core :refer [load-config]]
@@ -35,3 +36,6 @@
 
 (defn stop []
   (.stop @server))
+
+(defn -main []
+  (start))

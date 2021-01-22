@@ -6,4 +6,9 @@
         caesium/caesium {:mvn/version "0.14.0"}
         cljs-ajax/cljs-ajax {:mvn/version "0.8.1"}}
 
+ :aliases {:depstar
+           {:replace-deps
+            {seancorfield/depstar {:mvn/version "2.0.165"}}
+            :ns-default hf.depstar
+            :exec-args {}}}
  :paths ["src" "resources" "tests"]}
