@@ -32,6 +32,7 @@ turns out the API just returns n+1 posts if one is pinned -- tricky!
 ** TODO move get-value, contains-key?, and get-values-with-key to util.clj
 ** TODO rename to be more accurate
 ** TODO add doc strings
+* TODO config file needs to be indexed by guild IDs
 * DONE command responses need to be in embeds
 * DONE we have a max of 10 things per embed so gotta update the limit in get-posts
 * DONE security
