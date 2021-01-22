@@ -3,6 +3,7 @@
         cprop/cprop {:mvn/version "0.1.17"}
         ring/ring-jetty-adapter {:mvn/version "1.7.1"}
         metosin/jsonista {:mvn/version "0.3.0"}
-        caesium/caesium {:mvn/version "0.14.0"}}
+        caesium/caesium {:mvn/version "0.14.0"}
+        cljs-ajax/cljs-ajax {:mvn/version "0.8.1"}}
 
  :paths ["src" "resources" "tests"]}
