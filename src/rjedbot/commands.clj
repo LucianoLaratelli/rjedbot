@@ -5,7 +5,7 @@
             [clojure.string :as s]
             [jsonista.core :as j]
             [rjedbot.reddit :as reddit]
-            [rjedbot.util :as util]))
+            [rjedbot.util :as u]))
 
 (defn make-string-response
   [string]
@@ -29,34 +29,21 @@
                   :embeds (into []
                                 (map make-embed url-list))}})})
 
-(defn get-value
-  [m i]
-  (get-in m [i "value"]))
-
-(defn contains-key?
-  [key m]
-  (if (get m key)
-    true
-    false))
-
-(defn get-values-with-key
-  "
-  Get any values that match k from s, a seq of maps like:
-  ({:a 'foo'} {:b 'bar'} {:c 'baz'})
-  "
-  [s k]
-  (map k (filter #(contains-key? k %) s)))
-
 (defn post-handler
-  "Handle post URLs according to their types."
-  ;;depending on the type of content, some posts must be embedded while other
-  ;;must be sent as raw links, yet others can not be sent at all. The
-  ;;restriction here is that certain content types do not view properly in
-  ;;discord. gifs won't play in embeds, for example. From simple
-  ;;experimentation, I've determined the following:
-  ;;no extension, gifv, gif => raw link (sent as follow-up messages after embed is sent)
-  ;;allowed extensions (png, jpg, jpeg) => embed (all in the same response)
-  ;;mp4 => skip (maybe a message in the response like "skipped n invalid files")
+  "Handle post URLs according to their extensions."
+  ;; Depending on the extension of the content, some posts must be embedded while
+  ;; other must be sent as raw links, yet others can not be sent at all. The goal
+  ;; of rjedbot is to send messages that are displayed inline in a discord chat,
+  ;; so when discord fails to properly render something inline in some context,
+  ;; we must either try something different or not send the content at all. A
+  ;; context here means either an embed or sending a raw link.
+  ;;
+  ;; One notable issue is that gifs won't play in embeds, for example.
+  ;;
+  ;; From simple experimentation, I've determined the following:
+  ;;     no extension, gifv, gif => raw link (sent after the embed)
+  ;;     png, jpg, jpeg => joined together into a single embed
+  ;;     mp4 => skipped
   [posts]
   (let [embed-extensions #{"png" "jpg" "jpeg"}
         raw-msg-extensions #{"" "gifv" "gif"}
@@ -69,10 +56,12 @@
                                   (contains? embed-extensions extension) {:embed post}
                                   :default {:raw post})))
                             posts)
-        skipped (count (get-values-with-key labelled-posts :skip))
-        embeddable (get-values-with-key labelled-posts :embed)
-        to-raw (get-values-with-key labelled-posts :raw)
-        sendable (count embeddable)]
+        skipped (count (u/get-inner-values-matching-key labelled-posts :skip))
+        embeddable (u/get-inner-values-matching-key labelled-posts :embed)
+        to-raw (u/get-inner-values-matching-key labelled-posts :raw)
+        sendable (count embeddable)
+        ;;TODO: sendable should be embeddable + to-raw once the followup messages are implemented
+        ]
     (println (str "handling posts from subreddit at " (new java.util.Date)))
     (if (> sendable 0)
       (make-embed-from-urls embeddable (count to-raw) skipped)
@@ -81,20 +70,24 @@
 (def max-posts (atom (:max-posts (read-string (slurp (io/resource "config.edn"))))))
 
 (defn valid-post-count?
-  [the-count]
-  (if (nil? the-count)
+  "Do we have a valid amount of posts?"
+  ;; Allowing nil values as true because most of the commands do not actually
+  ;; include a post count -- only the /posts command does.
+  [c]
+  (if (nil? c)
     true
-    (<= 1 the-count @max-posts)))
+    (<= 1 c @max-posts)))
 
 (defn command-handler
+  "Determine what response is made to incoming commands."
   [body]
   (let [data (get body "data")
         options (get data "options")
         command-name (get data "name")
-        subreddit (get-value options 0)
-        post-type (keyword (get-value options 1))
-        post-time-scope (keyword (get-value options 2))
-        post-count (get-value options 3)]
+        subreddit (u/get-ith-value-with-key options 0 "value")
+        post-type (keyword (u/get-ith-value-with-key options 1 "value"))
+        post-time-scope (keyword (u/get-ith-value-with-key options 2 "value"))
+        post-count (u/get-ith-value-with-key options 3 "value")]
 
     (println (str "serving request for subreddit " subreddit " at " (new java.util.Date)))
     (if (valid-post-count? post-count)
@@ -105,7 +98,11 @@
         "post-from-time" (post-handler (reddit/get-posts subreddit post-type post-time-scope))
         "posts" (post-handler (reddit/get-posts subreddit post-type post-time-scope post-count))
         "update-max" (do
+                       ;;"subreddit" used loosely here -- for most commands, the
+                       ;;value of the 0th map will be a subreddit. Here
+                       ;;subreddit is the new number of maximum posts a server
+                       ;;owner wants to allow at a time.
                        (swap! max-posts subreddit)
-                       (util/write-edn {:max-posts @max-posts} "config.edn")))
+                       (u/write-edn {:max-posts @max-posts} "config.edn")))
 
       (make-string-response (conj "you asked for too many posts. max is " @max-posts)))))
