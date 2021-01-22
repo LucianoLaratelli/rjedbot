@@ -7,7 +7,7 @@
             [rjedbot.commands :as commands]))
 
 (def discord-pubkey
-  (cutil/unhexify (:key (load-config :resource "discord-pubkey.edn"))))
+  (cutil/unhexify (:key (load-config :resource "discord-credentials.edn"))))
 
 (def server (atom nil))
 
