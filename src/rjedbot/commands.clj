@@ -84,10 +84,10 @@
   (let [data (get body "data")
         options (get data "options")
         command-name (get data "name")
-        subreddit (u/get-ith-value-with-key options 0 "value")
-        post-type (keyword (u/get-ith-value-with-key options 1 "value"))
-        post-time-scope (keyword (u/get-ith-value-with-key options 2 "value"))
-        post-count (u/get-ith-value-with-key options 3 "value")]
+        subreddit (u/get-value-from-ith-map options 0 "value")
+        post-type (keyword (u/get-value-from-ith-map options 1 "value"))
+        post-time-scope (keyword (u/get-value-from-ith-map options 2 "value"))
+        post-count (u/get-value-from-ith-map options 3 "value")]
 
     (println (str "serving request for subreddit " subreddit " at " (new java.util.Date)))
     (if (valid-post-count? post-count)

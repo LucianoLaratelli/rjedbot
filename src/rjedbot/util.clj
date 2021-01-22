@@ -17,7 +17,7 @@
     true
     false))
 
-(defn get-ith-value-with-key
+(defn get-value-from-ith-map
   "Return the value for the key k in the ith map in a vec of maps."
   ;; When m is
   ;; [{"name" "subreddit", "value" "cats"} {"name" "section", "value" "top"}],
