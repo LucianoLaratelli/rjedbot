@@ -10,7 +10,6 @@
 
 (defn POST-string
   [message-token string]
-  (println "in POST-string")
   (let
    [url (str "https://discord.com/api/v8/webhooks/" application-id "/" message-token)]
     (POST url

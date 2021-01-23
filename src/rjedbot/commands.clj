@@ -3,13 +3,12 @@
             [clojure.pprint :as pp]
             [clojure.string :as s]
             [jsonista.core :as j]
+            [rjedbot.config :as config]
             [rjedbot.reddit :as reddit]
             [rjedbot.responses :as responses]
             [rjedbot.util :as u]
             [clojure.edn :as edn]
             [cprop.core :refer [load-config]]))
-
-(def max-posts (atom (:max-posts (read-string (slurp (io/resource "config.edn"))))))
 
 (defn post-handler
   "Handle post URLs according to their extensions."
@@ -56,10 +55,10 @@
   "Do we have a valid amount of posts?"
   ;; Allowing nil values as true because most of the commands do not actually
   ;; include a post count -- only the /posts command does.
-  [c]
+  [c guild]
   (if (nil? c)
     true
-    (<= 1 c @max-posts)))
+    (<= 1 c (:max-posts (get @config/config guild)))))
 
 (defn command-handler
   "Determine what response is made to incoming commands."
@@ -68,27 +67,34 @@
         options (get data "options")
         command-name (get data "name")
         token (get body "token")
+        guild (get body "guild_id")
         subreddit (u/get-value-from-ith-map options 0 "value")
         post-type (keyword (u/get-value-from-ith-map options 1 "value"))
         post-time-scope (keyword (u/get-value-from-ith-map options 2 "value"))
         post-count (u/get-value-from-ith-map options 3 "value")]
 
+    (when (not (config/known-guild? guild))
+      (do
+        (reset! config/config (assoc @config/config guild config/default-guild-data))
+        (u/write-to-resource "config.edn" (str @config/config))))
+
     (println (str "serving request for subreddit " subreddit " at " (new java.util.Date)))
-    (if (valid-post-count? post-count)
+    (if (valid-post-count? post-count guild)
       (try (case command-name
              "lofi" (responses/POST-string token "p!play https://www.youtube.com/watch?v=5qap5aO4i9A")
              "post" (post-handler (reddit/get-posts subreddit) token)
              "post-from" (post-handler (reddit/get-posts subreddit post-type) token)
              "post-from-time" (post-handler (reddit/get-posts subreddit post-type post-time-scope) token)
              "posts" (post-handler (reddit/get-posts subreddit post-type post-time-scope post-count) token)
-             "update-max" (do
-                       ;;"subreddit" used loosely here -- for most commands, the
-                       ;;value of the 0th map will be a subreddit. Here
-                       ;;subreddit is the new number of maximum posts a server
-                       ;;owner wants to allow at a time.
-                            (swap! max-posts subreddit)
-                            (u/write-edn {:max-posts @max-posts} "config.edn")))
+             ;; "update-max" (do
+             ;;           ;;"subreddit" used loosely here -- for most commands, the
+             ;;           ;;value of the 0th map will be a subreddit. Here
+             ;;           ;;subreddit is the new number of maximum posts a server
+             ;;           ;;owner wants to allow at a time.
+             ;;                (swap! max-posts subreddit)
+             ;;                (u/write-edn {:max-posts @max-posts} "config.edn"))
+             )
            (catch Exception e
              (responses/POST-string token (str "You asked for subreddit " subreddit ", which doesn't seem to exist."))))
 
-      (responses/POST-string token (str "you asked for too many posts. max is " @max-posts)))))
+      (responses/POST-string token (str "you asked for too many posts. max is " (:max-posts (get @config/config guild)))))))

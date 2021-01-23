@@ -10,6 +10,11 @@
     (binding [*out* f]
       (pr data))))
 
+(defn write-to-resource
+  [filename content]
+  (with-open [w (io/writer (io/resource filename))]
+    (.write w content)))
+
 (defn contains-key?
   "Returns if map m contains key k."
   [m k]
