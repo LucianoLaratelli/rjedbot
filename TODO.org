@@ -19,6 +19,12 @@ maybe only the server owner should be able to add subreddits to the favorites li
 send a single surprise
 **** TODO /surprise <amount>
 request n surprises (up to server limit)
+* TODO limit content types
+** TODO resources > channel > get channel
+channel object has nsfw field; get channel using the ID from the request. two cases:
+    if the channel is nsfw, allow all subreddits
+    if the channel is not nsfw, only allow to pull from some preapproved list of subreddits
+        here, reddit's top 100 may be a good choice. goota look into it
 * TODO Interfaces
 ** TODO reddit
 *** DONE want to wrap creddit commands
