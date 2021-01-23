@@ -6,3 +6,5 @@ tmp/
 resources/reddit-config.edn
 resources/discord-credentials.edn
 .cpcache/*
+pom.xml
+rjedbot.jar
