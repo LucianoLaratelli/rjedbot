@@ -4,7 +4,7 @@
             [caesium.util :as cutil]
             [cprop.core :refer [load-config]]
             [jsonista.core :as j]
-            [ring.adapter.jetty :as jetty]
+            [org.httpkit.server :as h]
             [rjedbot.commands :as commands]))
 
 (def discord-pubkey
@@ -31,11 +31,11 @@
          :body "invalid request signature"}))))
 
 (defn start []
-  (reset! server (jetty/run-jetty #'app {:port 44227, :join? false}))
+  (reset! server (h/run-server #'app {:port 44227}))
   (println "server running in port 44227"))
 
-(defn stop []
-  (.stop @server))
+;; (defn stop []
+;;   (.stop @server))
 
 (defn -main []
   (start))
