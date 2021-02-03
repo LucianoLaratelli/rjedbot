@@ -12,33 +12,36 @@
 
 (def server (atom nil))
 
+(def clients_ (atom #{}))
+
 (defn app
   [request]
+  (h/as-channel request
+                {:on-open (fn [ch] (swap! clients_ conj ch))})
   (let [body-str (slurp (:body request))
         body (j/read-value body-str)
         timestamp (get (:headers request) "x-signature-timestamp")
         signature (cutil/unhexify (get (:headers request) "x-signature-ed25519"))
         to-verify (str timestamp body-str)]
-    (h/with-channel request channel
+    (doseq [ch @clients_]
+      (swap! clients_ disj ch)
       (try
         (sign/verify signature to-verify discord-pubkey)
         (case (get body "type")
-          1 (h/send! channel
+          1 (h/send! ch
                      {:status 200
                       :headers {"Content-Type" "application/json"}
                       :body (j/write-value-as-string {:type 1})})
-          2 (commands/command-handler body channel))
+          2 (commands/command-handler body ch))
         (catch RuntimeException e
-          (h/send! channel
+          (println (.getMessage e))
+          (h/send! ch
                    {:status 401
                     :body "invalid request signature"}))))))
 
 (defn start []
   (reset! server (h/run-server #'app {:port 44227}))
-  (println "server running in port 44227"))
-
-;; (defn stop []
-;;   (.stop @server))
+  (println "Started rjedbot server running on port 44227 at" (str (new java.util.Date))))
 
 (defn -main []
   (start))
