@@ -1,7 +1,7 @@
 {:deps {org.clojure/clojure {:mvn/version "1.10.0"}
         creddit/creddit {:mvn/version "1.1.0"}
         cprop/cprop {:mvn/version "0.1.17"}
-        http-kit/http-kit {:mvn/version "2.3.0"}
+        http-kit/http-kit {:mvn/version "2.5.1"}
         metosin/jsonista {:mvn/version "0.3.0"}
         caesium/caesium {:mvn/version "0.14.0"}
         cljs-ajax/cljs-ajax {:mvn/version "0.8.1"}
