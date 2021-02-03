@@ -55,5 +55,4 @@
     (GET url
       {:headers
        {"authorization"
-        "Bot Nzk5MTIxOTU1NjQ2MjEwMDc4.X_--UQ.62jv5RML4QZxZ4DFLHczza5PRow"}})))
-
+        "insert discord token here"}})))
