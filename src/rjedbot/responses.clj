@@ -22,22 +22,24 @@
        :error-handler pp/pprint})))
 
 (defn POST-single-URL
-  [message-token url]
+  [message-token url chan]
   (log (str "POSTing single URL using token " message-token " at " (new java.util.Date)))
   (let
    [discord-url (str discord-webhook-url message-token)]
     (POST discord-url
       {:format :json
        :params {:content url}
-       :handler pp/pprint
-       :error-handler pp/pprint})))
+       :handler #(a/>!! chan %)
+       :error-handler #(a/>!! chan %)})
+
+    chan))
 
 (defn make-embed
   [url-string]
   {:image {:url url-string}})
 
-(defn POST-embed
-  [message-token urls]
+(defn async-POST-embed
+  [message-token urls chan]
   (log (str "POSTing embed using token " message-token " at " (new java.util.Date)))
   (let
    [url (str discord-webhook-url message-token)]
@@ -45,8 +47,10 @@
       {:format :json
        :params {:embeds (into []
                               (map make-embed urls))}
-       :handler pp/pprint
-       :error-handler pp/pprint})))
+       :handler #(a/>!! chan %)
+       :error-handler #(a/>!! chan %)})
+
+    chan))
 
 (defn GET-guild-owner
   [guild-id]
@@ -56,3 +60,16 @@
       {:headers
        {"authorization"
         "insert discord token here"}})))
+
+(defn handle-rate-limited-call
+  "If we make a call that can be rate limited, respect the rate limit and then retry."
+  [f & args]
+  (a/go
+    (loop [func f
+           argss args]
+      (let [response (a/<! (apply func argss))]
+        (pp/pprint response)
+        (when (= 429 (:status response))
+          (pp/pprint (get-in response [:response "retry_after"]))
+          (a/timeout (* 1000 (get-in response [:response "retry_after"])))
+          (recur f args))))))
