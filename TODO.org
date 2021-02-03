@@ -19,6 +19,7 @@ maybe only the server owner should be able to add subreddits to the favorites li
 send a single surprise
 **** TODO /surprise <amount>
 request n surprises (up to server limit)
+* TODO hide or show user's rjedbot invocation based on guild id
 * TODO limit content types
 ** TODO resources > channel > get channel
 channel object has nsfw field; get channel using the ID from the request. two cases:
@@ -49,6 +50,9 @@ the original response and nine follow up messages containing other embeds
 Eventually it's going to become too much of a pain to compute how many posts we
 were able to embed vs send raw etc. Once follow-up messages are ready, only say
 how many posts we had to skip!
+* TODO delete all guild-local commands, replacing them with global commands
+** TODO k's server
+** TODO e's server
 * DONE refactor utils in commands.clj
 ** DONE move get-value, contains-key?, and get-values-with-key to util.clj
 *** DONE get-value
