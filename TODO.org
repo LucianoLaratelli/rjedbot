@@ -1,23 +1,24 @@
 #+TITLE: TODO
 
+* TODO DOCS
 * TODO Features
-** TODO "Surprise me" command where members of a server can add a list of favorite subreddits and then a command picks a random post from each one
+** DONE "Surprise me" command where members of a server can add a list of favorite subreddits and then a command picks a random post from each one
 maybe only the server owner should be able to add subreddits to the favorites list....
-** TODO need commands to:
-*** TODO add subreddit to list
-**** TODO /surprise add: ${subreddit}
-*** TODO remove subreddit from list
-**** TODO /surprise remove: ${subreddit}
-*** TODO show current list
-**** TODO /surprise show
-*** TODO actually request a post:
+** DONE need commands to:
+*** DONE add subreddit to list
+**** DONE /surprise add: ${subreddit}
+*** DONE remove subreddit from list
+**** DONE /surprise remove: ${subreddit}
+*** DONE show current list
+**** DONE /surprise show
+*** DONE actually request a post:
 **** DONE <prefix> <subreddit>
 **** DONE <prefix> <subreddit> <type>
 **** DONE <prefix> <subreddit> <type> <time>
 **** DONE <prefix> <subreddit> <type> <time> <amount>
-**** TODO /surprise
+**** DONE /surprise
 send a single surprise
-**** TODO /surprise <amount>
+**** DONE /surprise <amount>
 request n surprises (up to server limit)
 * TODO hide or show user's rjedbot invocation based on guild id
 * TODO limit content types
@@ -35,24 +36,25 @@ channel object has nsfw field; get channel using the ID from the request. two ca
 ** DONE at least some pinned posts are marked as not being pinned by the API
 turns out the API just returns n+1 posts if one is pinned -- tricky!
 * TODO server-owner configuration
-** TODO maximum number of requestable posts
+** DONE maximum number of requestable posts
 *** DONE read from an edn
 *** DONE write to an edn
-*** TODO interaction that does this
-*** TODO needs to check that we don't exceed global embed limit or reddit API limit
+*** DONE interaction that does this
+*** DONE needs to check that we don't exceed global embed limit or reddit API limit
 though I guess if we exceed the embed limit, can't we just send another embed
 (or nine other embeds) in follow-up messages? looking at the docs it seems like
 there isn't a restriction on the number of follow-up messages that can be sent,
 so if someone requests, say, 100 posts, and all of them are embeds, then we send
 the original response and nine follow up messages containing other embeds
 (because embeds can only have ten things in them at a time.)
-* TODO edit the embed url content
+* DONE edit the embed url content
 Eventually it's going to become too much of a pain to compute how many posts we
 were able to embed vs send raw etc. Once follow-up messages are ready, only say
 how many posts we had to skip!
 * TODO delete all guild-local commands, replacing them with global commands
-** TODO k's server
-** TODO e's server
+** DONE k's server
+** DONE e's server
+** TODO my server
 * DONE refactor utils in commands.clj
 ** DONE move get-value, contains-key?, and get-values-with-key to util.clj
 *** DONE get-value
@@ -62,7 +64,7 @@ how many posts we had to skip!
 *** DONE get-values-with-key
 ** DONE rename to be more accurate
 ** DONE add doc strings
-* TODO config file needs to be indexed by guild IDs
+* DONE config file needs to be indexed by guild IDs
 * DONE command responses need to be in embeds
 * DONE we have a max of 10 things per embed so gotta update the limit in get-posts
 * DONE security
