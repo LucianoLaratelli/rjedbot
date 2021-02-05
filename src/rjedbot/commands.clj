@@ -1,7 +1,5 @@
 (ns rjedbot.commands
-  (:require [clojure.pprint :as pp]
-            [clojure.string :as s]
-            [jsonista.core :as j]
+  (:require [jsonista.core :as j]
             [org.httpkit.server :as h]
             [rjedbot.config :as conf]
             [rjedbot.guilds :as g]
@@ -10,47 +8,6 @@
             [rjedbot.responses :as r]
             [rjedbot.util :as util]
             [clojure.core.async :as a]))
-
-(defn post-handler
-  "Handle post URLs according to their extensions."
-  ;; Depending on the extension of the content, some posts must be embedded while
-  ;; other must be sent as raw links, yet others can not be sent at all. The goal
-  ;; of rjedbot is to send messages that are displayed inline in a discord chat,
-  ;; so when discord fails to properly render something inline in some context,
-  ;; we must either try something different or not send the content at all. A
-  ;; context here means either an embed or sending a raw link.
-  ;;
-  ;; One notable issue is that gifs won't play in embeds, for example.
-  ;;
-  ;; From simple experimentation, I've determined the following:
-  ;;     no extension, gifv, gif => raw link (sent after the embed)
-  ;;     png, jpg, jpeg => joined together into a single embed
-  ;;     mp4 => skipped
-  [posts token]
-  (println "Handling these posts:")
-  (pp/pprint posts)
-  (let [embed-extensions #{"png" "jpg" "jpeg"}
-        ;; raw-msg-extensions #{"" "gifv" "gif"}
-        skipped-extensions #{"mp4"}
-        labelled-posts (map (fn [post]
-                              (let [extension
-                                    (last (s/split (apply str (take-last 5 post)) #"\."))]
-                                (cond
-                                  (contains? skipped-extensions extension) {:skip post}
-                                  (contains? embed-extensions extension) {:embed post}
-                                  :else {:raw post})))
-                            posts)
-        total (count posts)
-        skipped (count (util/get-inner-values-matching-key labelled-posts :skip))
-        embeddable (util/get-inner-values-matching-key labelled-posts :embed)
-        to-raw (util/get-inner-values-matching-key labelled-posts :raw)
-        results-chan (a/chan)]
-    (when (> skipped 0)
-      (r/handle-rate-limited-call r/POST-string token
-                                  (str "Skipped " skipped " of " total " requested posts due to invalid format.")))
-    (r/handle-rate-limited-call r/async-POST-embed token embeddable results-chan)
-    (doseq [r to-raw]
-      (r/handle-rate-limited-call r/POST-string token r results-chan))))
 
 (defn valid-post-count?
   "Do we have a valid amount of posts?"
@@ -112,9 +69,9 @@
               ;;name. For update-max, subreddit is the new maximum number of
               ;;posts. For surprises, it is the number of surprises to request.
               "update-max" (conf/update-maximum guild token subreddit chan)
-              "surprise" (post-handler (conf/get-surprises subreddit guild token chan) token)
+              "surprise" (r/post-handler (conf/get-surprises subreddit guild token chan) token)
               ;; handle these cases: "hot" "category" "time" "many"
-              (post-handler (apply reddit/get-posts arguments) token))
+              (r/post-handler (apply reddit/get-posts arguments) token))
             (catch Exception e
               (log "Exception in command handler:")
               (log (.getMessage e))
