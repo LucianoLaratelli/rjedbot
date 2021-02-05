@@ -51,7 +51,10 @@
         (flatten (map #(reddit/get-posts %) (set (repeatedly amount #(conf/get-favorite-subreddit guild-id)))))))))
 
 (defn send-favorites
+  "Read the guild favorites and send a message with them."
   [guild token chan]
+  ;; TODO: eventually we should send a nice embed, kind of how kiran sends the
+  ;; ooflist in oofbot.
   (let [favorites (:favorites (get @conf/config guild))
         num_favs (count favorites)]
     (if (> num_favs 0)
@@ -62,10 +65,12 @@
       (r/handle-rate-limited-call r/POST-string token "There are no server favorites. Use `/add-favorite` to add some!" chan))))
 
 (defn remove-member
+  "Remove a member from a set."
   [s member]
   (into #{} (filterv #(not (= member %)) s)))
 
 (defn remove-favorite
+  "Remove a favorite from a guild's list of favorites."
   [guild favorite token chan]
   (let [favorites (:favorites (get @conf/config guild))
         num_favs (count favorites)]
@@ -83,7 +88,7 @@
       (r/handle-rate-limited-call r/POST-string token "There are no server favorites. Use `/add-favorite` to add some!" chan))))
 
 (defn add-favorite
-  "Add a subreddit to the favorites list."
+  "Add a subreddit to the guild's favorites list."
   [guild favorite token chan]
   (let [in [guild :favorites]
         favs (get-in @conf/config in)]
