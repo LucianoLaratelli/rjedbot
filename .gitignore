@@ -8,3 +8,4 @@ resources/discord-credentials.edn
 .cpcache/*
 pom.xml
 rjedbot.jar
+resources/config.edn
