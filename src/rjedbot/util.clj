@@ -1,6 +1,7 @@
 (ns rjedbot.util
   "Utility functions for rjedbot."
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.core.async :refer [chan thread <!!  >!!]]
+            [clojure.java.io :as io]))
 
 (defn write-to-resource
   "Write content to resources/filename"
@@ -30,3 +31,16 @@
   ;; and we call this function with :a, we return 'foo' and 'quux'
   [s k]
   (map k (filter #(contains-key? % k) s)))
+
+(def log-chan (chan))
+
+(thread
+  (loop []
+    (when-let [v (<!! log-chan)]
+      (println v)
+      (recur)))
+  (println "Log Closed"))
+
+(defn log [msg]
+  "Async logging handler."
+  (>!! log-chan msg))
