@@ -50,7 +50,7 @@
                                   (str "Skipped " skipped " of " total " requested posts due to invalid format.")))
     (r/handle-rate-limited-call r/async-POST-embed token embeddable results-chan)
     (doseq [r to-raw]
-      (r/handle-rate-limited-call r/POST-single-URL token r results-chan))))
+      (r/handle-rate-limited-call r/POST-string token r results-chan))))
 
 (defn valid-post-count?
   "Do we have a valid amount of posts?"
