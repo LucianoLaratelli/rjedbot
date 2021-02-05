@@ -1,11 +1,11 @@
 (ns rjedbot.server
   (:gen-class)
-  (:require [caesium.crypto.sign :as sign]
-            [caesium.util :as cutil]
+  (:require [caesium.util :as cutil]
             [cprop.core :refer [load-config]]
             [jsonista.core :as j]
             [org.httpkit.server :as h]
-            [rjedbot.commands :as commands]))
+            [rjedbot.commands :as commands]
+            [caesium.crypto.sign :as sign]))
 
 (def discord-pubkey
   (cutil/unhexify (:key (load-config :resource "discord-credentials.edn"))))
