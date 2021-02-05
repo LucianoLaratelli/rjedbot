@@ -1,17 +1,9 @@
 (ns rjedbot.util
+  "Utility functions for rjedbot."
   (:require [clojure.java.io :as io]))
 
-;; Writes data to an edn file
-;; thanks kiran
-;; https://github.com/kiranshila/oofbot/blob/master/src/oofbot/core.clj
-
-
-(defn write-edn [data filename]
-  (with-open [f (io/writer filename)]
-    (binding [*out* f]
-      (pr data))))
-
 (defn write-to-resource
+  "Write content to resources/filename"
   [filename content]
   (with-open [w (io/writer (io/resource filename))]
     (.write w content)))
