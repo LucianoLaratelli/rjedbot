@@ -1,13 +1,13 @@
 (ns rjedbot.responses
   "The responses namespace encompasses the functions that send content back to
   discord to answer a user's interaction."
-  (:require [clojure.core.async :as a]
+  (:require [ajax.core :refer [POST]]
             [clojure.pprint :as pp]
             [clojure.string :as s]
             [cprop.core :refer [load-config]]
             [rjedbot.log :refer [log]]
             [rjedbot.util :as util]
-            [ajax.core :refer [POST]]))
+            [clojure.core.async :as a]))
 
 (def application-id (:app-id (load-config :resource "discord-credentials.edn")))
 
@@ -45,14 +45,12 @@
 (defn handle-rate-limited-call
   "If we make a call that can be rate limited, respect the rate limit and then retry."
   [f & args]
-  (a/go
-    (loop [func f
-           argss args]
-      (let [response (a/<! (apply func argss))]
-        (when (= 429 (:status response))
-          ;; discord sends us a time in seconds; a/timeout expects milliseconds
-          (a/timeout (* 1000 (get-in response [:response "retry_after"])))
-          (recur f args))))))
+  (a/go-loop [f f args args]
+    (let [response (a/<! (apply f args))]
+      (when (= 429 (:status response))
+        ;; discord sends us a time in seconds; a/timeout expects milliseconds
+        (a/timeout (* 1000 (get-in response [:response "retry_after"])))
+        (recur f args)))))
 
 (defn post-handler
   "Handle post URLs according to their extensions."
