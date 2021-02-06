@@ -64,7 +64,7 @@ the lowest of the following quantities:
   lovely, but an async wrapper tuned for rjedbot would not only be fun to write,
   but would also be very nice to have.
 * Acknowledgments
-My many thanks to [[https:github.com/djeis97][Elijah]] and [[https:github.com/kiranshila][Kiran]]. Elijah suggested using the (new)
+My many thanks to [[https://github.com/djeis97][Elijah]] and [[https://github.com/activexray][Kiran]]. Elijah suggested using the (new)
 interactions API to me and was a great help in getting the server components and
 response validation set up. Kiran helped me debug a nasty async issue and came
 up with a clean solution for it. Thanks to you both!
