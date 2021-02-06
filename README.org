@@ -4,3 +4,67 @@
 =rjedbot= is a clojure bot for requesting reddit posts from discord servers, made
 possible thanks to the wonderful [[https://github.com/ThatGuyHughesy/creddit][creddit]] library and the discord interactions
 API.
+
+* Commands
+The commands that send a post are limited to sending, at most, as many posts as
+the lowest of the following quantities:
+- The (per-server) maximum posts limit,
+- 100 posts, the maximum amount we can request using the =creddit= library,
+- (For now) 10 posts, the most that can be sent in an embed via Discord's API
+  + I will soon implement the functionality to send 100 posts via multiple
+    embeds, but this limitation exists for now.
+** Requesting a Reddit post
+=rjedbot= provides these slash commands to users:
+- =post= contains subcommands which get posts from reddit; each subcommand
+  provides different options to the user.
+  - =post hot ${subreddit}= gets the first post from the "hot" section of the
+    provided subreddit.
+  - =post category ${subreddit} ${section}= gets the first post from a category
+    in a subreddit.
+    Category can be one of:
+    - hot
+    - controversial
+    - new
+    - rising
+    - top
+  - =post time ${subreddit} ${section} ${time}= gets the first post from a
+    category in a subreddit, but scoped by a time range. If the category is any
+    besides =top=, rjedbot sends the same post regardless of the provided time.
+    A fix for this (to default to =top=) is in the works.
+  - =post many ${subreddit} ${section} ${time} ${quantity}= gets more than one
+    post at a time; the user is responsible for selecting all options.
+** Server-specific configuration
+- =surprise ${amount}= picks a subreddit from the server favorites list and
+  sends the first post from its =hot= section. The optional =${amount}=
+  specifies how many favorite subreddits to grab, /not/ how many posts to grab.
+  If there are fewer favorites than posts requested, rjedbot will send a warning
+  and then send as many posts as it can.
+- =list-favorites= sends the list of server favorites.
+- =add-favorite ${subreddit}= adds a subreddit to the server favorites list.
+- =remove-favorite ${subreddit}= removes a subreddit from the server favorites
+  list.
+- =update-max ${max}= changes the maximum amount of allowed posts to =${max}=.
+** Miscellaneous
+- The =lofi= command returns the string =p!play
+  https://www.youtube.com/watch?v=5qap5aO4i9A=. My friends and I frequently play
+  this video using the [[https://pancake.gg][pancake]] discord bot when we are using discord as a study
+  lounge, so I put it into rjedbot for our convenience.
+* Future work
+- Only the server owner should be able to control the maximum amount of posts that rjedbot can send at a time.
+- The server owner should get to choose if anyone can modify the server favorites list, and in what way.
+  + For example, the server owner should be able to assign add and remove
+    permissions separately to each user in the server.
+- If a channel has not been marked as NSFW, then users should only be able to
+  request posts from subreddits that are in some safe list of subreddits.
+  + One option is the reddit top 100 list, which have been vetted by reddit themselves.
+  + Another option is to allow the server owner to configure this list.
+- Server owners should be able to decide if rjedbot will show the command
+  invoked by a user or not.
+- I would like to write my own API for reddit using =core.async=. Creddit is
+  lovely, but an async wrapper tuned for rjedbot would not only be fun to write,
+  but would also be very nice to have.
+* Acknowledgments
+My many thanks to [[https:github.com/djeis97][Elijah]] and [[https:github.com/kiranshila][Kiran]]. Elijah suggested using the (new)
+interactions API to me and was a great help in getting the server components and
+response validation set up. Kiran helped me debug a nasty async issue and came
+up with a clean solution for it. Thanks to you both!
