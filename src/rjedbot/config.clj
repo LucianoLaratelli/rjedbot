@@ -3,7 +3,6 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as s]
             [rjedbot.config :as conf]
-            [rjedbot.log :refer [log]]
             [rjedbot.responses :as r]
             [rjedbot.util :as u]
             [rjedbot.reddit :as reddit]))
@@ -38,7 +37,7 @@
 (defn get-surprises
   "Get a set of reddit posts by grabbing from the server's favorites list."
   [amount guild-id token chan]
-  (log (str "handling " amount " surprises at " (new java.util.Date)))
+  (u/log (str "handling " amount " surprises at " (new java.util.Date)))
   (let [fave-count  (conf/count-favorites guild-id)
         amount (if (nil? amount) 1 amount)]
     (if (= fave-count 0)
