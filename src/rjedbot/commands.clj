@@ -6,8 +6,7 @@
             [rjedbot.reddit :as reddit]
             [rjedbot.responses :as r]
             [rjedbot.util :as util]
-            [clojure.core.async :as a]
-            [clojure.pprint :as pp]))
+            [clojure.core.async :as a]))
 
 (defn valid-post-count?
   "Do we have a valid amount of posts?"
@@ -57,7 +56,6 @@
         post-count (util/get-value-from-ith-map subcommand-options 3 "value")
         arguments (filter #(not (nil? %)) [subreddit post-type post-time-scope post-count])]
 
-    (pp/pprint body)
     (when (not (conf/known-guild? guild))
       (reset! conf/config (assoc @conf/config guild conf/default-guild-data))
       (util/write-to-resource "config.edn" (str @conf/config)))
