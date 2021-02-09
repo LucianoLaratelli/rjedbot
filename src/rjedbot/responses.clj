@@ -5,7 +5,6 @@
             [clojure.pprint :as pp]
             [clojure.string :as s]
             [cprop.core :refer [load-config]]
-            [rjedbot.log :refer [log]]
             [rjedbot.util :as util]
             [clojure.core.async :as a]))
 
@@ -17,7 +16,7 @@
 (defn POST-string
   "Send a followup message that consists of a single string."
   [message-token string chan]
-  (log (str "POSTing single string using token " message-token " at " (new java.util.Date)))
+  (util/log (str "POSTing single string using token " message-token " at " (new java.util.Date)))
   (let
    [url (str discord-webhook-url message-token)]
     (POST url
@@ -30,7 +29,7 @@
 (defn POST-embed
   "Send a followup message that contains an embed."
   [message-token urls chan]
-  (log (str "POSTing embed using token " message-token " at " (new java.util.Date)))
+  (util/log (str "POSTing embed using token " message-token " at " (new java.util.Date)))
   (let
    [url (str discord-webhook-url message-token)]
     (POST url
